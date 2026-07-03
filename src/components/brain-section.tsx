@@ -1,9 +1,20 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
-import { Brain, Music, Hand, Eye } from "lucide-react";
-import { Dialog } from "@/components/ui/dialog";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Scan } from "lucide-react";
 import { BrainOverlay } from "@/components/brain-overlay";
+import { Dialog } from "@/components/ui/dialog";
+import dynamic from "next/dynamic";
+
+const QrScanner = dynamic(() => import("@/components/qr-scanner"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64 text-blue-400 text-sm">
+      Cargando cámara...
+    </div>
+  ),
+});
 
 interface JuegoData {
   id: string;
@@ -11,81 +22,121 @@ interface JuegoData {
   lobulo: string;
   lobuloImg: string;
   descripcion: string;
-  cartaUrl: string;
   completado: boolean;
 }
 
-const lobuloIcons: Record<string, React.ElementType> = {
-  frontal: Brain,
-  temporal: Music,
-  parietal: Hand,
-  occipital: Eye,
-};
-
-const lobuloColors: Record<string, string> = {
-  frontal: "from-red-400 to-red-500 shadow-red-200",
-  temporal: "from-green-400 to-green-500 shadow-green-200",
-  parietal: "from-blue-400 to-blue-500 shadow-blue-200",
-  occipital: "from-yellow-400 to-yellow-500 shadow-yellow-200",
-};
-
-const lobuloGlows: Record<string, string> = {
-  frontal: "ring-red-300",
-  temporal: "ring-green-300",
-  parietal: "ring-blue-300",
-  occipital: "ring-yellow-300",
-};
+interface ScanResult {
+  exito: boolean;
+  juegoNombre: string;
+  lobulo: string;
+  error?: string;
+}
 
 export function BrainSection({ juegos }: { juegos: JuegoData[] }) {
-  const [selectedCarta, setSelectedCarta] = useState<JuegoData | null>(null);
-  const completados = juegos.filter((j) => j.completado);
+  const router = useRouter();
+  const [scanOpen, setScanOpen] = useState(false);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+
+  const handleScanResult = useCallback((result: ScanResult) => {
+    setScanResult(result);
+    setScanOpen(false);
+  }, []);
+
+  const handleCloseResult = useCallback(() => {
+    setScanResult(null);
+    router.refresh();
+  }, [router]);
 
   return (
-    <>
+    <div className="flex flex-col items-center gap-3">
       <BrainOverlay juegos={juegos} />
 
-      {completados.length > 0 && (
-        <div className="flex items-center justify-center gap-3 mt-4">
-          {completados.map((juego) => {
-            const Icon = lobuloIcons[juego.lobulo] ?? Brain;
-            return (
-              <button
-                key={juego.id}
-                onClick={() => setSelectedCarta(juego)}
-                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${lobuloColors[juego.lobulo] ?? "from-gray-400 to-gray-500"} text-white flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all duration-200 hover:ring-2 ${lobuloGlows[juego.lobulo] ?? "ring-gray-300"} cursor-pointer`}
-                title={`Ver ${juego.nombre}`}
-              >
-                <Icon className="w-5 h-5" />
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <button
+        onClick={() => setScanOpen(true)}
+        className="flex items-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-full transition-colors"
+      >
+        <Scan className="w-4 h-4" />
+        Escanear QR
+      </button>
+
+      <Dialog.Root open={scanOpen} onOpenChange={setScanOpen}>
+        <Dialog.Portal>
+          <Dialog.Backdrop />
+          <Dialog.Popup className="w-[90vw] max-w-sm bg-white rounded-2xl shadow-2xl p-0 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">
+                Escanear QR
+              </h2>
+              <Dialog.Close className="relative top-0 right-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+                ✕
+              </Dialog.Close>
+            </div>
+            <div className="p-4">
+              <QrScanner onResult={handleScanResult} />
+            </div>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       <Dialog.Root
-        open={!!selectedCarta}
+        open={!!scanResult}
         onOpenChange={(open) => {
-          if (!open) setSelectedCarta(null);
+          if (!open) handleCloseResult();
         }}
       >
         <Dialog.Portal>
           <Dialog.Backdrop />
-          <Dialog.Popup className="max-w-[85vw] max-h-[85vh] w-auto h-auto bg-transparent shadow-none">
-            {selectedCarta && (
-              <div className="relative">
-                <img
-                  src={selectedCarta.cartaUrl}
-                  alt={selectedCarta.nombre}
-                  className="w-auto h-auto max-w-[85vw] max-h-[80vh] object-contain rounded-2xl shadow-2xl"
-                />
-                <Dialog.Close className="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-white transition-all text-lg">
-                  ✕
-                </Dialog.Close>
-              </div>
-            )}
+          <Dialog.Popup className="w-[85vw] max-w-sm bg-white rounded-2xl shadow-2xl p-0 overflow-hidden">
+            {scanResult?.exito ? (
+              <>
+                <div className="bg-gradient-to-r from-green-500 to-green-600 px-5 py-6 text-center">
+                  <div className="text-4xl mb-2">🎉</div>
+                  <h2 className="text-xl font-bold text-white">
+                    {scanResult.juegoNombre}
+                  </h2>
+                  <p className="text-green-100 text-sm mt-1">
+                    Lóbulo {scanResult.lobulo} desbloqueado
+                  </p>
+                </div>
+                <div className="p-5 text-center">
+                  <p className="text-sm text-gray-600 mb-4">
+                    Se ha revelado un nuevo color en tu cerebro
+                  </p>
+                  <button
+                    onClick={handleCloseResult}
+                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all"
+                  >
+                    Ver mi cerebro
+                  </button>
+                </div>
+              </>
+            ) : scanResult ? (
+              <>
+                <div className="bg-gradient-to-r from-red-500 to-red-600 px-5 py-6 text-center">
+                  <div className="text-4xl mb-2">😕</div>
+                  <h2 className="text-xl font-bold text-white">
+                    QR inválido
+                  </h2>
+                </div>
+                <div className="p-5 text-center">
+                  <p className="text-sm text-gray-600 mb-4">
+                    {scanResult.error ?? "Este código ya expiró o no es válido"}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setScanResult(null);
+                      setScanOpen(true);
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all"
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              </>
+            ) : null}
           </Dialog.Popup>
         </Dialog.Portal>
       </Dialog.Root>
-    </>
+    </div>
   );
 }
