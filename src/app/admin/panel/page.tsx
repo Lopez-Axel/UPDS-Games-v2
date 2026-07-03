@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CheckCircle2, Clock } from "lucide-react";
 
 interface Juego {
   id: string;
@@ -231,12 +232,14 @@ export default function AdminPanelPage() {
                         </div>
                       </div>
                       {status === "completado" ? (
-                        <span className="text-xs font-medium text-green-600 bg-green-100 px-3 py-1.5 rounded-lg">
-                          ✅
+                        <span className="text-xs font-medium text-green-600 bg-green-100 px-3 py-1.5 rounded-lg flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Completo
                         </span>
                       ) : status === "marcado" ? (
-                        <span className="text-xs font-medium text-blue-600 bg-blue-100 px-3 py-1.5 rounded-lg">
-                          ⏳ Pendiente
+                        <span className="text-xs font-medium text-blue-600 bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          Pendiente
                         </span>
                       ) : (
                         <Button

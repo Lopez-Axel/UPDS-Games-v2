@@ -1,8 +1,8 @@
 ﻿"use client";
 
-import { useState, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Scan } from "lucide-react";
+import { Scan, PartyPopper, AlertCircle, X } from "lucide-react";
 import { BrainOverlay } from "@/components/brain-overlay";
 import { Dialog } from "@/components/ui/dialog";
 import dynamic from "next/dynamic";
@@ -36,15 +36,21 @@ export function BrainSection({ juegos }: { juegos: JuegoData[] }) {
   const router = useRouter();
   const [scanOpen, setScanOpen] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const closingRef = useRef(false);
 
   const handleScanResult = useCallback((result: ScanResult) => {
     setScanResult(result);
     setScanOpen(false);
   }, []);
 
-  const handleCloseResult = useCallback(() => {
+  const handleSuccessClose = useCallback(() => {
+    if (closingRef.current) return;
+    closingRef.current = true;
     setScanResult(null);
-    router.refresh();
+    setTimeout(() => {
+      router.refresh();
+      closingRef.current = false;
+    }, 250);
   }, [router]);
 
   return (
@@ -59,7 +65,7 @@ export function BrainSection({ juegos }: { juegos: JuegoData[] }) {
         Escanear QR
       </button>
 
-      <Dialog.Root open={scanOpen} onOpenChange={setScanOpen}>
+      <Dialog.Root open={scanOpen} onOpenChange={setScanOpen} disablePointerDismissal>
         <Dialog.Portal>
           <Dialog.Backdrop />
           <Dialog.Popup className="w-[90vw] max-w-sm bg-white rounded-2xl shadow-2xl p-0 overflow-hidden">
@@ -68,7 +74,7 @@ export function BrainSection({ juegos }: { juegos: JuegoData[] }) {
                 Escanear QR
               </h2>
               <Dialog.Close className="relative top-0 right-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors">
-                ✕
+                <X className="w-4 h-4" />
               </Dialog.Close>
             </div>
             <div className="p-4">
@@ -78,19 +84,14 @@ export function BrainSection({ juegos }: { juegos: JuegoData[] }) {
         </Dialog.Portal>
       </Dialog.Root>
 
-      <Dialog.Root
-        open={!!scanResult}
-        onOpenChange={(open) => {
-          if (!open) handleCloseResult();
-        }}
-      >
+      <Dialog.Root open={!!scanResult} disablePointerDismissal>
         <Dialog.Portal>
           <Dialog.Backdrop />
           <Dialog.Popup className="w-[85vw] max-w-sm bg-white rounded-2xl shadow-2xl p-0 overflow-hidden">
             {scanResult?.exito ? (
               <>
                 <div className="bg-gradient-to-r from-green-500 to-green-600 px-5 py-6 text-center">
-                  <div className="text-4xl mb-2">🎉</div>
+                  <PartyPopper className="w-10 h-10 mx-auto mb-2 text-white" />
                   <h2 className="text-xl font-bold text-white">
                     {scanResult.juegoNombre}
                   </h2>
@@ -103,7 +104,7 @@ export function BrainSection({ juegos }: { juegos: JuegoData[] }) {
                     Se ha revelado un nuevo color en tu cerebro
                   </p>
                   <button
-                    onClick={handleCloseResult}
+                    onClick={handleSuccessClose}
                     className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium hover:from-blue-700 hover:to-blue-800 transition-all"
                   >
                     Ver mi cerebro
@@ -113,7 +114,7 @@ export function BrainSection({ juegos }: { juegos: JuegoData[] }) {
             ) : scanResult ? (
               <>
                 <div className="bg-gradient-to-r from-red-500 to-red-600 px-5 py-6 text-center">
-                  <div className="text-4xl mb-2">😕</div>
+                  <AlertCircle className="w-10 h-10 mx-auto mb-2 text-white" />
                   <h2 className="text-xl font-bold text-white">
                     QR inválido
                   </h2>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Brain, Music, Hand, Eye } from "lucide-react";
+import { Brain, Music, Hand, Eye, X } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog";
 
 interface JuegoInfo {
@@ -114,8 +114,8 @@ export function BrainOverlay({ juegos }: BrainOverlayProps) {
                   alt={selectedCarta.nombre}
                   className="w-auto h-auto max-w-[85vw] max-h-[80vh] object-contain rounded-2xl shadow-2xl"
                 />
-                <Dialog.Close className="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-white transition-all text-lg">
-                  ✕
+                <Dialog.Close className="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-white transition-all">
+                  <X className="w-4 h-4" />
                 </Dialog.Close>
               </div>
             )}
