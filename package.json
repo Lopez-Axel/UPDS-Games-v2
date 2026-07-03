@@ -9,7 +9,7 @@
 		"lint": "eslint",
 		"postinstall": "prisma generate",
 		"db:reset": "npx prisma migrate reset --force && tsx prisma/seed.ts"
-	}
+	},
 	"dependencies": {
 		"@base-ui/react": "^1.6.0",
 		"@prisma/adapter-better-sqlite3": "^7.8.0",
