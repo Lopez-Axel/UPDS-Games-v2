@@ -37,11 +37,12 @@ async function main() {
     },
   ];
 
-  for (const { nombre, ...rest } of juegos) {
+  for (const juego of juegos) {
+    const { nombre, ...data } = juego;
     await prisma.juego.upsert({
-      where: { id: nombre },
-      update: rest,
-      create: { nombre, ...rest },
+      where: { nombre },
+      update: data,
+      create: juego,
     });
   }
 
