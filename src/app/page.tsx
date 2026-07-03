@@ -41,7 +41,7 @@ export default function HomePage() {
           <img
             src="/logo.png"
             alt="Feria UPDS"
-            className="w-24 h-24 mx-auto mb-4"
+            className="w-40 h-40 mx-auto mb-4"
           />
           <h1 className="text-3xl font-bold tracking-tight text-blue-900">
             Feria UPDS

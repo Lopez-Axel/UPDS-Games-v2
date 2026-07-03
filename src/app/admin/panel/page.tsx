@@ -104,9 +104,9 @@ export default function AdminPanelPage() {
       const exists = prev.progresos.find((p) => p.juegoId === juegoId);
       const updatedProgresos = exists
         ? prev.progresos.map((p) =>
-            p.juegoId === juegoId ? { ...p, completado: true, marcado: true } : p
+            p.juegoId === juegoId ? { ...p, marcado: true } : p
           )
-        : [...prev.progresos, { juegoId, completado: true, marcado: true }];
+        : [...prev.progresos, { juegoId, completado: false, marcado: true }];
       return {
         ...prev,
         progresos: updatedProgresos,
@@ -115,11 +115,20 @@ export default function AdminPanelPage() {
     });
 
     setParticipantes((prev) =>
-      prev.map((p) =>
-        p.id === selectedUser.id
-          ? { ...p, completados: p.completados + 1 }
-          : p
-      )
+      prev.map((p) => {
+        if (p.id !== selectedUser.id) return p;
+        const exists = p.progresos.find((pr) => pr.juegoId === juegoId);
+        const updated = exists
+          ? p.progresos.map((pr) =>
+              pr.juegoId === juegoId ? { ...pr, marcado: true } : pr
+            )
+          : [...p.progresos, { juegoId, completado: false, marcado: true }];
+        return {
+          ...p,
+          progresos: updated,
+          completados: updated.filter((pr) => pr.completado).length,
+        };
+      })
     );
     setMarking(null);
   }

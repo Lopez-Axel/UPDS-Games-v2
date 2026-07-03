@@ -47,7 +47,7 @@ const lobuloColors: Record<string, string> = {
 export function BrainOverlay({ juegos, fullColor = false }: BrainOverlayProps) {
   const [selectedCarta, setSelectedCarta] = useState<JuegoInfo | null>(null);
   const completados = juegos.filter((j) => j.completado);
-  const allCompleted = fullColor || (juegos.length > 0 && juegos.every((j) => j.completado));
+  const allCompleted = fullColor || completados.length === 4;
 
   return (
     <>

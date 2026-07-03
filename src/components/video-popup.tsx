@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Dialog } from "@/components/ui/dialog";
 
 interface VideoPopupProps {
@@ -11,7 +11,9 @@ interface VideoPopupProps {
 export function VideoPopup({ open, onComplete }: VideoPopupProps) {
   const doneRef = useRef(false);
 
-  if (!open) doneRef.current = false;
+  useEffect(() => {
+    if (!open) doneRef.current = false;
+  }, [open]);
 
   return (
     <Dialog.Root open={open} disablePointerDismissal>
