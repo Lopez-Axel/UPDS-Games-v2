@@ -24,12 +24,14 @@ export async function POST(req: Request) {
   await prisma.progreso.upsert({
     where: { userId_juegoId: { userId, juegoId } },
     update: {
+      marcadoAt: new Date(),
       syncToken,
       syncExpiresAt,
     },
     create: {
       userId,
       juegoId,
+      marcadoAt: new Date(),
       syncToken,
       syncExpiresAt,
     },

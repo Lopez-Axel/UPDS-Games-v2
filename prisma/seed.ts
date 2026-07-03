@@ -12,28 +12,24 @@ async function main() {
       lobulo: "frontal",
       lobuloImg: "/lobulo-frontal.png",
       descripcion: "Estilo Stroop: palabra de color escrita en tinta distinta, hay que decir el color de la tinta",
-      pdfUrl: "/pdfs/juego-frontal.pdf",
     },
     {
       nombre: "Adivina la emoción de la música",
       lobulo: "temporal",
       lobuloImg: "/lobulo-temporal.png",
       descripcion: "Fragmento musical, identificar emoción (alegría/tristeza/miedo/etc.)",
-      pdfUrl: "/pdfs/juego-temporal.pdf",
     },
     {
       nombre: "Relieve Express",
       lobulo: "parietal",
       lobuloImg: "/lobulo-parietal.png",
       descripcion: "Reconocimiento táctil de texturas/formas con ojos cerrados",
-      pdfUrl: "/pdfs/juego-parietal.pdf",
     },
     {
       nombre: "El dilema del puente",
       lobulo: "occipital",
       lobuloImg: "/lobulo-occipital.png",
       descripcion: "Acertijo visual con solución gráfica",
-      pdfUrl: "/pdfs/juego-occipital.pdf",
     },
   ];
 

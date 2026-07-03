@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { BrainOverlay } from "@/components/brain-overlay";
+import { BrainSection } from "@/components/brain-section";
 import { GameCard } from "@/components/game-card";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +40,6 @@ export default async function MiCerebroPage() {
     lobulo: p.juego.lobulo,
     lobuloImg: p.juego.lobuloImg,
     descripcion: p.juego.descripcion,
-    pdfUrl: p.juego.pdfUrl,
     cartaUrl: `/carta-${p.juego.lobulo}.png`,
     completado: !!p.completadoAt,
     color: lobuloColors[p.juego.lobulo] ?? "from-green-400 to-green-500",
@@ -61,10 +60,10 @@ export default async function MiCerebroPage() {
         </div>
 
         <div className="w-full rounded-2xl bg-white p-6 shadow-sm border border-blue-100">
-          <BrainOverlay juegos={juegos} />
+          <BrainSection juegos={juegos} />
         </div>
 
-        <div className="w-full flex flex-col gap-4">
+        <div className="w-full flex flex-col gap-3">
           {juegos.map((juego) => (
             <GameCard key={juego.id} juego={juego} />
           ))}

@@ -15,6 +15,7 @@ interface Juego {
 interface ProgresoResumen {
   juegoId: string;
   completado: boolean;
+  marcado: boolean;
 }
 
 interface ParticipanteResumen {
@@ -102,9 +103,9 @@ export default function AdminPanelPage() {
       const exists = prev.progresos.find((p) => p.juegoId === juegoId);
       const updatedProgresos = exists
         ? prev.progresos.map((p) =>
-            p.juegoId === juegoId ? { ...p, completado: true } : p
+            p.juegoId === juegoId ? { ...p, completado: true, marcado: true } : p
           )
-        : [...prev.progresos, { juegoId, completado: true }];
+        : [...prev.progresos, { juegoId, completado: true, marcado: true }];
       return {
         ...prev,
         progresos: updatedProgresos,
@@ -122,10 +123,12 @@ export default function AdminPanelPage() {
     setMarking(null);
   }
 
-  function juegoCompletado(juegoId: string) {
-    return selectedUser?.progresos.some(
-      (p) => p.juegoId === juegoId && p.completado
-    );
+  function juegoStatus(juegoId: string) {
+    const prog = selectedUser?.progresos.find((p) => p.juegoId === juegoId);
+    if (!prog) return "none";
+    if (prog.completado) return "completado";
+    if (prog.marcado) return "marcado";
+    return "none";
   }
 
   return (
@@ -189,26 +192,28 @@ export default function AdminPanelPage() {
               </div>
               <div className="p-5 flex flex-col gap-3">
                 {juegos.map((juego) => {
-                  const completado = juegoCompletado(juego.id);
+                  const status = juegoStatus(juego.id);
                   return (
                     <div
                       key={juego.id}
                       className={`rounded-xl border p-4 flex items-center justify-between transition-all ${
-                        completado
+                        status === "completado"
                           ? "border-green-200 bg-green-50/60"
-                          : "border-gray-100 bg-gray-50/40"
+                          : status === "marcado"
+                            ? "border-blue-200 bg-blue-50/60"
+                            : "border-gray-100 bg-gray-50/40"
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-2 h-8 rounded-full ${
-                            completado ? "bg-green-400" : "bg-gray-200"
+                            status === "completado" ? "bg-green-400" : status === "marcado" ? "bg-blue-400" : "bg-gray-200"
                           }`}
                         />
                         <div>
                           <p
                             className={`font-semibold text-sm ${
-                              completado ? "text-gray-900" : "text-gray-400"
+                              status !== "none" ? "text-gray-900" : "text-gray-400"
                             }`}
                           >
                             {juego.nombre}
@@ -225,9 +230,13 @@ export default function AdminPanelPage() {
                           )}
                         </div>
                       </div>
-                      {completado ? (
+                      {status === "completado" ? (
                         <span className="text-xs font-medium text-green-600 bg-green-100 px-3 py-1.5 rounded-lg">
                           ✅
+                        </span>
+                      ) : status === "marcado" ? (
+                        <span className="text-xs font-medium text-blue-600 bg-blue-100 px-3 py-1.5 rounded-lg">
+                          ⏳ Pendiente
                         </span>
                       ) : (
                         <Button

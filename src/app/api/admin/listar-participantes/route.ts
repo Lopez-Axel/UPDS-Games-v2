@@ -13,6 +13,7 @@ export async function GET(req: Request) {
         select: {
           juegoId: true,
           completadoAt: true,
+          marcadoAt: true,
         },
       },
     },
@@ -28,6 +29,7 @@ export async function GET(req: Request) {
       progresos: u.progresos.map((p) => ({
         juegoId: p.juegoId,
         completado: !!p.completadoAt,
+        marcado: !!p.marcadoAt,
       })),
     }))
   );

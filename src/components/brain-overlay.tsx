@@ -6,7 +6,6 @@ interface JuegoInfo {
   lobulo: string;
   lobuloImg: string;
   descripcion: string;
-  pdfUrl: string;
   completado: boolean;
 }
 
